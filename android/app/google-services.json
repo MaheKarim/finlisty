@@ -1,0 +1,29 @@
+{
+    "project_info": {
+        "project_number": "297166576100",
+        "project_id": "finlisty-app-bd",
+        "storage_bucket": "finlisty-app-bd.firebasestorage.app"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:297166576100:android:cd253fe42dab7275afcff1",
+                "android_client_info": {
+                    "package_name": "com.finlisty.app"
+                }
+            },
+            "oauth_client": [],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyBOpoSTILmZuWl8KVQV6sJPHHMQbKDmpow"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": []
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}
