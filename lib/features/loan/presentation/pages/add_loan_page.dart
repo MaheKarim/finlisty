@@ -18,19 +18,33 @@ class _AddLoanPageState extends State<AddLoanPage> {
   LoanType _type = LoanType.given;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _interestController = TextEditingController();
+  final TextEditingController _monthlyPaymentController = TextEditingController();
   DateTime _startDate = DateTime.now();
   DateTime? _dueDate;
+  DateTime? _paymentStartMonth;
 
   bool _isLoading = false;
 
   Future<void> _saveLoan() async {
     if (_nameController.text.isEmpty || _amountController.text.isEmpty) return;
+    
+    // Validate monthly payment for Loan Taken
+    if (_type == LoanType.taken && _monthlyPaymentController.text.isNotEmpty) {
+      final monthlyPayment = double.tryParse(_monthlyPaymentController.text);
+      if (monthlyPayment == null || monthlyPayment <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter a valid monthly payment amount')),
+        );
+        return;
+      }
+    }
 
     setState(() => _isLoading = true);
 
     final amount = double.tryParse(_amountController.text) ?? 0.0;
-    final interest = double.tryParse(_interestController.text);
+    final monthlyPayment = _monthlyPaymentController.text.isNotEmpty
+        ? double.tryParse(_monthlyPaymentController.text)
+        : null;
 
     final loan = Loan(
       id: '',
@@ -38,10 +52,11 @@ class _AddLoanPageState extends State<AddLoanPage> {
       type: _type,
       principalAmount: amount,
       outstandingAmount: amount,
-      interestRate: interest,
       startDate: _startDate,
       dueDate: _dueDate,
       status: LoanStatus.active,
+      monthlyPaymentAmount: monthlyPayment,
+      paymentStartMonth: _paymentStartMonth,
     );
 
     final result = await sl<LoanRepository>().addLoan(loan);
@@ -194,15 +209,45 @@ class _AddLoanPageState extends State<AddLoanPage> {
             ),
             const SizedBox(height: 16),
 
-            // Interest Rate
-            TextFormField(
-              controller: _interestController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: appLocalizations.interestRate,
-                suffixText: '%',
+            // Recurring Payment Fields (for Loan Taken only)
+            if (_type == LoanType.taken) ...[
+              TextFormField(
+                controller: _monthlyPaymentController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Monthly Payment Amount (Optional)',
+                  prefixText: appLocalizations.currencySymbol,
+                  helperText: 'Set up automatic monthly payments',
+                ),
               ),
-            ),
+              const SizedBox(height: 16),
+              GestureDetector(
+                onTap: () async {
+                  final d = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2030),
+                  );
+                  if (d != null) setState(() => _paymentStartMonth = d);
+                },
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: 'Payment Start Month (Optional)',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    helperText: 'When to start monthly payments',
+                  ),
+                  child: Text(
+                    _paymentStartMonth != null
+                        ? '${_paymentStartMonth!.toLocal()}'.split(' ')[0]
+                        : 'Select',
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
 
             const SizedBox(height: 32),
 

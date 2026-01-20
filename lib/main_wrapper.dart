@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'config/theme/app_colors.dart';
 import 'core/languages/app_localizations.dart';
 import 'core/providers/language_provider.dart';
 import 'core/providers/theme_provider.dart';
 import 'features/dashboard/presentation/pages/dashboard_page.dart';
 import 'features/transaction/presentation/pages/transactions_page.dart';
 import 'features/analytics/presentation/pages/analytics_page.dart';
-import 'features/loan/presentation/pages/loans_page.dart';
 import 'features/settings/presentation/pages/settings_page.dart';
 
 /// Main app wrapper with providers and bottom navigation
@@ -24,7 +24,6 @@ class _MainWrapperState extends State<MainWrapper> {
     const DashboardPage(),
     const TransactionsPage(),
     const AnalyticsPage(),
-    const LoansPage(),
     const SettingsPage(),
   ];
 
@@ -52,6 +51,8 @@ class _MainWrapperState extends State<MainWrapper> {
             type: BottomNavigationBarType.fixed,
             selectedFontSize: 12,
             unselectedFontSize: 12,
+            selectedItemColor: AppColors.primaryBlue,
+            unselectedItemColor: AppColors.textSecondary,
             items: [
               BottomNavigationBarItem(
                 icon: const Icon(Icons.home_outlined),
@@ -69,13 +70,8 @@ class _MainWrapperState extends State<MainWrapper> {
                 label: appLocalizations.navAnalytics,
               ),
               BottomNavigationBarItem(
-                icon: const Icon(Icons.account_balance_wallet_outlined),
-                activeIcon: const Icon(Icons.account_balance_wallet),
-                label: appLocalizations.navLoans,
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.settings_outlined),
-                activeIcon: const Icon(Icons.settings),
+                icon: const Icon(Icons.person_outline),
+                activeIcon: const Icon(Icons.person),
                 label: appLocalizations.navSettings,
               ),
             ],

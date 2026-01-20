@@ -1,268 +1,301 @@
-You are a senior Flutter + Firebase architect and product engineer. If You need to install anything for this app please proceed
+You are a senior Flutter + Firebase architect and product engineer.
 
-Build a production-ready MVP of a Personal Finance mobile app for Bangladesh
-using Flutter (Android-first) and Firebase, following Clean Architecture.
+Your task is to BUILD a production-ready MVP of a Personal Finance mobile app for Bangladesh using Flutter (Android-first) and Firebase.
 
-The app helps users manage:
-- Income
-- Expense
-- Transfer
-- Multiple Wallets (Cash, bKash, Bank)
-- Loan & Debt (Given and Taken)
-and clearly understand monthly financial health through analytics.
+This is NOT a prototype.
+This is a real-world MVP for real users.
 
-========================
-1. CORE REQUIREMENTS
-========================
+If any dependency, Flutter package, Firebase setup, or configuration is required,
+you are AUTHORIZED to install and configure it.
 
-Platform:
-- Flutter (latest stable)
-- Firebase (Auth, Firestore, Cloud Functions, FCM)
-
-Architecture:
+You MUST follow:
 - Clean Architecture
 - MVVM
 - Feature-first modular structure
-- Offline-first where possible
+- Offline-first approach where possible
 
-========================
-2. FEATURES (MVP SCOPE)
-========================
+You MUST NOT skip any feature.
+You MUST perform ALL verification checks before finalizing.
+
+════════════════════════════
+PHASE 0 — SYSTEM SETUP
+════════════════════════════
+
+Platform:
+• Flutter (latest stable)
+• Android-first
+
+Backend:
+• Firebase Authentication
+• Cloud Firestore
+• Firebase Cloud Messaging (optional for future)
+
+Architecture:
+• Clean Architecture
+• MVVM
+• Feature-first modules
+• Offline-first (Firestore cache)
+
+UI / UX:
+• Strictly follow @design_guide.md
+• Do NOT introduce new colors, fonts, spacing, or components
+
+════════════════════════════
+PHASE 1 — DATA & DOMAIN DESIGN
+════════════════════════════
+
+Design Firestore collections:
+
+• users
+• wallets
+• transactions
+• categories
+• recurring_bills
+• loans
+• loan_payments
+
+Rules:
+• Every document MUST be scoped by userId
+• Index collections for scalability
+• Minimize read/write cost
+• Prepare schema for offline sync
+
+════════════════════════════
+PHASE 2 — AUTHENTICATION & SECURITY
+════════════════════════════
+
+Implement:
+• Firebase Authentication
+  - Email + Password OR Google Sign-in
+• Secure Firestore Rules:
+  - Users can read/write ONLY their own data
+• Local App Lock:
+  - PIN or Biometric
+
+════════════════════════════
+PHASE 3 — CORE PRODUCT FEATURES
+════════════════════════════
 
 --------------------------------
-A. Wallet Management
+A. WALLET MANAGEMENT
 --------------------------------
-- Support multiple wallets:
-  - Cash
-  - bKash
-  - Bank
-- Each wallet has:
-  - name
-  - type
-  - balance
-- Wallet balance auto-updates based on transactions
+Wallet types:
+• Cash
+• bKash
+• Bank
+
+Wallet fields:
+• name
+• type
+• balance
+
+Rules:
+• Wallet balance auto-updates from transactions
+• Wallet-wise balance MUST appear on Dashboard
 
 --------------------------------
-B. Transactions
+B. TRANSACTIONS
 --------------------------------
-Support 3 transaction types:
+Supported types:
 1. Income
 2. Expense
 3. Transfer (wallet → wallet)
 
 Common fields:
-- amount
-- wallet
-- date
-- note (optional)
+• amount
+• wallet
+• date
+• note (optional)
 
-Expense-specific:
-- category-based expense
-- payment method: Cash / bKash / Nagad
+Expense:
+• Category-based
+• Payment method: Cash / bKash / Nagad
 
-Transfer logic:
-- Deduct from source wallet
-- Add to destination wallet
-- Use Firestore atomic transaction
+Transfer:
+• Atomic Firestore transaction
+• Deduct from source wallet
+• Add to destination wallet
 
 --------------------------------
-C. Expense Categories
+C. EXPENSE CATEGORIES
 --------------------------------
 Default categories:
-- Food
-- Transport
-- Rent
-- Bill
-- Shopping
-- Health
-- Others
+• Food
+• Transport
+• Rent
+• Bill
+• Shopping
+• Health
+• Others
 
-Each category must support:
-- English name
-- Bangla name
-- icon
-
---------------------------------
-D. Recurring Expense (Bills)
---------------------------------
-- User can create recurring bills
-- Frequency:
-  - Monthly
-  - Weekly
-- Track next due date automatically
+Each category MUST include:
+• English name
+• Bangla name
+• Icon
 
 --------------------------------
-E. Bill Reminder
+D. RECURRING EXPENSE (BILLS)
 --------------------------------
-- Use Firebase Cloud Functions (scheduled)
-- Send FCM notification 1 day before due date
-- Notification includes:
-  - bill name
-  - amount
-  - due date
+• Monthly or Weekly
+• Auto-calculate next due date
 
 --------------------------------
-F. Loan & Debt Management (NEW)
+E. LOAN & DEBT MANAGEMENT
 --------------------------------
-
-Support two types:
+Loan types:
 1. Loan Given (Others owe user)
 2. Loan Taken (User owes others)
 
-Each loan includes:
-- personName
-- loanType: given | taken
-- principalAmount
-- interestRate (optional)
-- startDate
-- dueDate (optional)
-- status: active | closed
-- linked wallet (optional)
+Loan fields:
+• personName
+• loanType (given | taken)
+• principalAmount
+• startDate
+• dueDate (optional)
+• status (active | closed)
+• linkedWallet (optional)
+
+STRICT RULE:
+❌ NO interest rate
+❌ NO interest calculation
 
 Loan actions:
-- Add loan
-- Partial repayment
-- Full settlement
-- Auto-adjust wallet balance on repayment
+• Add loan
+• Partial repayment
+• Full settlement
+• Auto wallet balance adjustment
+
+Loan Taken additional rule:
+• Fixed recurring monthly payment
+• Monthly auto-deduction
+• Reduce remaining balance
+• Maintain payment history
 
 --------------------------------
-G. Loan & Debt Analytics (NEW)
+F. LOAN & DEBT ANALYTICS
 --------------------------------
+Show:
+• Total loan given
+• Total loan taken
+• Net outstanding position
+• Monthly repayment summary
+• Overdue loans list
+• Active vs Closed count
 
-Analytics must show:
-- Total loan given
-- Total loan taken
-- Outstanding amount (net position)
-- Monthly loan repayment summary
-- Overdue loans list
-- Active vs closed loans count
-
-Optional simple visualization:
-- Bar chart (loan vs debt)
-- List-based overdue alerts
-
---------------------------------
-H. Analytics & Dashboard
---------------------------------
-
-Dashboard must show:
-- Monthly summary:
-  - Total income
-  - Total expense
-  - Net balance
-- Category-wise expense pie chart
-- Top 3 expense categories
-- Loan snapshot:
-  - Outstanding loan
-  - Outstanding debt
-
-Analytics should be computed using:
-- Firestore aggregation queries
-- Cloud Functions if required for performance
+Visualization:
+• Simple bar chart (Loan vs Debt)
+• List-based overdue alerts
 
 --------------------------------
-I. Language & UI
+G. DASHBOARD & ANALYTICS
 --------------------------------
-- Bangla + English UI
-- Language switch from settings
-- Use intl + JSON translations
-- Light & Dark mode
+Dashboard:
+• Monthly income
+• Monthly expense
+• Net balance
+• Wallet-wise balances
+• Loan snapshot (outstanding loan & debt)
 
-========================
-3. FIREBASE DATA MODEL
-========================
+Analytics:
+• Category-wise expense pie chart
+• Top 3 expense categories
+• Daily-wise expense visualization:
+  - Bar chart (daily expense)
+  - Line chart overlay (trend)
+• Default range: Last 7 days
 
-Design Firestore collections for:
-- users
-- wallets
-- transactions
-- categories
-- recurring_bills
-- loans
-- loan_payments
+--------------------------------
+H. UI, LANGUAGE & NAVIGATION
+--------------------------------
+• Bangla + English UI
+• intl + JSON translations
+• Language switch from settings
+• Light & Dark mode
 
-Ensure:
-- userId-based data isolation
-- scalable indexing
-- minimal read/write cost
+Navigation:
+• Bottom navigation bar on ALL main pages:
+  - Dashboard
+  - Transactions
+  - Analytics
+  - Profile / Settings
 
-========================
-4. SECURITY
-========================
+════════════════════════════
+PHASE 4 — FIREBASE SYSTEM HEALTH CHECK (NEW)
+════════════════════════════
 
-- Firebase Auth (Anonymous or Google)
-- Firestore security rules:
-  - Users can access only their own data
-- Local app security:
-  - PIN / Biometric lock
+After login, the app MUST automatically verify:
 
-========================
-5. UI / UX DESIGN INSTRUCTIONS (IMPORTANT)
-========================
+• Firebase Auth state is valid
+• User document exists in Firestore
+• Required collections are accessible
+• Security rules allow correct access
+• Offline cache is working correctly
 
-Design style:
-- Modern, clean, minimal
-- Finance-grade (trustworthy, calm)
-- No clutter, high readability
+If any check fails:
+• Show a safe fallback UI
+• Log the issue
+• Prevent app crash
 
-Design principles:
-- Use whitespace generously
-- Soft shadows, rounded cards
-- Clear hierarchy (Balance > Summary > Details)
-- One primary CTA per screen
+════════════════════════════
+PHASE 5 — UI IMPLEMENTATION
+════════════════════════════
 
-Color system:
-- Neutral background (light gray / off-white)
-- Primary accent color (green / teal)
-- Red only for negative (expense, debt)
-- Green for positive (income, loan given)
+Implement example screens:
+• Login / Registration
+• Dashboard
+• Add Income
+• Add Expense
+• Transfer
+• Loan Add
+• Loan Repayment
+• Analytics
+• Settings
 
-Typography:
-- Large balance numbers
-- Medium section headers
-- Small helper text
-- Avoid decorative fonts
+Rules:
+• Follow @design_guide.md strictly
+• Calm, clean, finance-grade UI
+• No visual clutter
+• Numbers must be prioritized
 
-Dashboard layout:
-- Top: Total balance
-- Middle: Monthly summary cards
-- Bottom: Charts + insights
-
-Charts:
-- Simple, flat design
-- No 3D charts
-- Clear legends
-- Touch-friendly
-
-Forms:
-- Minimal input fields
-- Numeric keypad for amount
-- Clear validation errors
-- Primary action button fixed at bottom
-
-========================
-6. OUTPUT EXPECTATION
-========================
+════════════════════════════
+PHASE 6 — OUTPUT EXPECTATION
+════════════════════════════
 
 Provide:
 1. Flutter folder structure (Clean Architecture)
 2. Firestore schema (all collections)
 3. Firestore security rules
-4. Cloud Functions:
-   - Bill reminder
-   - Loan overdue reminder (optional)
-5. Example Flutter screens:
-   - Dashboard
-   - Add Expense
-   - Add Income
-   - Transfer
-   - Loan Add / Repayment
-6. Clear comments and documentation
+4. Firebase Auth + Health Check logic
+5. Example Flutter screens
+6. Clear inline comments & documentation
 
-Do NOT include:
-- Investment
-- Bank API integration
-- AI predictions
-- Family / multi-user features
+════════════════════════════
+PHASE 7 — FINAL SELF-AUDIT (MANDATORY)
+════════════════════════════
 
-Focus strictly on MVP quality, clarity, and long-term scalability.
+Before finalizing, VERIFY ALL items:
+
+☐ Firebase login works correctly  
+☐ Firebase health check passes  
+☐ Firestore rules enforced  
+☐ Wallet-wise balance correct  
+☐ Income / Expense / Transfer accurate  
+☐ Atomic wallet transfer works  
+☐ Categories bilingual  
+☐ Recurring bills logic correct  
+☐ Loan given & taken (NO interest)  
+☐ Loan recurring monthly payment  
+☐ Loan analytics implemented  
+☐ Dashboard analytics complete  
+☐ Daily bar + line chart present  
+☐ Bottom navigation on all pages  
+☐ Clean Architecture respected  
+☐ @design_guide.md fully followed  
+
+If ANY item is missing, FIX IT before completion.
+
+This app MUST feel:
+• Trustworthy
+• Calm
+• Clean
+• Production-ready

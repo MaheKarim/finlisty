@@ -8,11 +8,12 @@ class LoanModel extends Loan {
     required super.type,
     required super.principalAmount,
     required super.outstandingAmount,
-    super.interestRate,
     required super.startDate,
     super.dueDate,
     required super.status,
     super.linkedWalletId,
+    super.monthlyPaymentAmount,
+    super.paymentStartMonth,
   });
 
   factory LoanModel.fromSnapshot(DocumentSnapshot doc) {
@@ -23,11 +24,14 @@ class LoanModel extends Loan {
       type: _stringToType(data['type'] ?? 'given'),
       principalAmount: (data['principalAmount'] ?? 0.0).toDouble(),
       outstandingAmount: (data['outstandingAmount'] ?? 0.0).toDouble(),
-      interestRate: (data['interestRate'] as num?)?.toDouble(),
       startDate: (data['startDate'] as Timestamp).toDate(),
       dueDate: data['dueDate'] != null ? (data['dueDate'] as Timestamp).toDate() : null,
       status: _stringToStatus(data['status'] ?? 'active'),
       linkedWalletId: data['linkedWalletId'],
+      monthlyPaymentAmount: (data['monthlyPaymentAmount'] as num?)?.toDouble(),
+      paymentStartMonth: data['paymentStartMonth'] != null 
+          ? (data['paymentStartMonth'] as Timestamp).toDate() 
+          : null,
     );
   }
 
@@ -37,11 +41,14 @@ class LoanModel extends Loan {
       'type': type.name == 'given' ? 'GIVEN' : 'TAKEN',
       'principalAmount': principalAmount,
       'outstandingAmount': outstandingAmount,
-      'interestRate': interestRate,
       'startDate': Timestamp.fromDate(startDate),
       'dueDate': dueDate != null ? Timestamp.fromDate(dueDate!) : null,
       'status': status.name,
       'linkedWalletId': linkedWalletId,
+      'monthlyPaymentAmount': monthlyPaymentAmount,
+      'paymentStartMonth': paymentStartMonth != null 
+          ? Timestamp.fromDate(paymentStartMonth!) 
+          : null,
       'updatedAt': FieldValue.serverTimestamp(),
     };
   }

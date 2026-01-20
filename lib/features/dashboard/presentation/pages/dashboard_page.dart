@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/languages/app_localizations.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../config/theme/app_colors.dart';
+import '../../../../config/theme/app_theme.dart';
 import '../../../../injection_container.dart';
 import '../../../wallet/domain/entities/wallet.dart';
 import '../../../transaction/domain/entities/transaction_entity.dart';
@@ -20,6 +21,7 @@ class DashboardPage extends StatelessWidget {
       create: (_) => DashboardBloc(
         walletRepository: sl(),
         transactionRepository: sl(),
+        loanRepository: sl(),
       )..add(SubscribeDashboardData()),
       child: const DashboardView(),
     );
@@ -119,6 +121,58 @@ class DashboardView extends StatelessWidget {
 
                     const SizedBox(height: 24),
 
+                    // Loan Snapshot Section (Per PRD requirement)
+                    _buildSectionHeader(context, appLocalizations.loanSnapshot, null),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildLoanCard(
+                            context,
+                            appLocalizations.outstandingLoan,
+                            state.totalLoanGiven,
+                            AppColors.success,
+                            appLocalizations,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildLoanCard(
+                            context,
+                            appLocalizations.outstandingDebt,
+                            state.totalLoanTaken,
+                            AppColors.error,
+                            appLocalizations,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (state.overdueLoanCount > 0) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.warning.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.warning_amber_rounded, size: 16, color: AppColors.warning),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${state.overdueLoanCount} overdue loan(s)',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppColors.warning,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 24),
+
                     // Recent Transactions
                     _buildSectionHeader(
                       context,
@@ -146,7 +200,8 @@ class DashboardView extends StatelessWidget {
         },
         label: Text(appLocalizations.addTransaction),
         icon: const Icon(Icons.add),
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.primaryBlue,
+        foregroundColor: Colors.white,
       ),
     );
   }
@@ -158,33 +213,27 @@ class DashboardView extends StatelessWidget {
   ) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(AppTheme.spacingSection),
       decoration: BoxDecoration(
         gradient: AppColors.primaryGradient,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+        boxShadow: AppColors.softShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             appLocalizations.totalBalance,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.white70,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Colors.white.withOpacity(0.8),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppTheme.spacingTight),
           Text(
             '${appLocalizations.currencySymbol}${balance.toStringAsFixed(2)}',
-            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+            style: Theme.of(context).textTheme.displayLarge?.copyWith(
               color: Colors.white,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -254,9 +303,7 @@ class DashboardView extends StatelessWidget {
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         if (onTap != null)
           GestureDetector(
@@ -264,7 +311,7 @@ class DashboardView extends StatelessWidget {
             child: Text(
               'See All',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
+                color: AppColors.primaryBlue,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -373,74 +420,63 @@ class DashboardView extends StatelessWidget {
     final isIncome = t.type == TransactionType.income;
     final isTransfer = t.type == TransactionType.transfer;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant,
+    return Card(
+      margin: const EdgeInsets.only(bottom: AppTheme.spacingTight),
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.spacingDefault),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppTheme.spacingTight),
+              decoration: BoxDecoration(
+                color: isIncome
+                    ? AppColors.success.withOpacity(0.1)
+                    : isTransfer
+                        ? AppColors.info.withOpacity(0.1)
+                        : AppColors.error.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(AppTheme.radiusButton),
+              ),
+              child: Icon(
+                isIncome
+                    ? Icons.trending_up
+                    : isTransfer
+                        ? Icons.swap_horiz
+                        : Icons.trending_down,
+                color: isIncome
+                    ? AppColors.success
+                    : isTransfer
+                        ? AppColors.info
+                        : AppColors.error,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: AppTheme.spacingDefault),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isTransfer
+                        ? 'Transfer'
+                        : (t.categoryName ?? (isIncome ? 'Income' : 'Expense')),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(
+                    t.date.toString().split(' ')[0],
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+            Text(
+              '${isIncome ? '+' : '-'}${AppColors.currencySymbol}${t.amount.toStringAsFixed(0)}',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: isIncome ? AppColors.success : AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isIncome
-                  ? AppColors.income.withOpacity(0.1)
-                  : isTransfer
-                      ? Colors.blue.withOpacity(0.1)
-                      : AppColors.expense.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              isIncome
-                  ? Icons.arrow_downward
-                  : isTransfer
-                      ? Icons.swap_horiz
-                      : Icons.arrow_upward,
-              color: isIncome
-                  ? AppColors.income
-                  : isTransfer
-                      ? Colors.blue
-                      : AppColors.expense,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isTransfer
-                      ? 'Transfer'
-                      : (t.categoryName ?? (isIncome ? 'Income' : 'Expense')),
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  t.date.toString().split(' ')[0],
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            '${isIncome ? '+' : '-'}${AppColors.currencySymbol}${t.amount.toStringAsFixed(0)}',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: isIncome
-                  ? AppColors.income
-                  : Theme.of(context).colorScheme.onSurface,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -457,5 +493,41 @@ class DashboardView extends StatelessWidget {
       case WalletType.other:
         return Icons.wallet;
     }
+  }
+
+  Widget _buildLoanCard(
+    BuildContext context,
+    String title,
+    double amount,
+    Color color,
+    AppLocalizations appLocalizations,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(AppTheme.spacingDefault),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: color,
+                ),
+          ),
+          const SizedBox(height: AppTheme.spacingTight),
+          Text(
+            '${appLocalizations.currencySymbol}${amount.toStringAsFixed(0)}',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+          ),
+        ],
+      ),
+    );
   }
 }

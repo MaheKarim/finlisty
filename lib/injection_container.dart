@@ -22,10 +22,13 @@ import 'features/category/domain/repositories/category_repository.dart';
 import 'features/recurring_bill/data/datasources/recurring_bill_remote_data_source.dart';
 import 'features/recurring_bill/data/repositories/recurring_bill_repository_impl.dart';
 import 'features/recurring_bill/domain/repositories/recurring_bill_repository.dart';
+import 'features/auth/data/services/auth_service.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
+  // Services
+  sl.registerLazySingleton(() => AuthService());
   // External
   final firestore = FirebaseFirestore.instance;
   final auth = FirebaseAuth.instance;

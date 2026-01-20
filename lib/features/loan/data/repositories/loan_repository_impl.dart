@@ -19,11 +19,12 @@ class LoanRepositoryImpl implements LoanRepository {
         type: loan.type,
         principalAmount: loan.principalAmount,
         outstandingAmount: loan.outstandingAmount,
-        interestRate: loan.interestRate,
         startDate: loan.startDate,
         dueDate: loan.dueDate,
         status: loan.status,
         linkedWalletId: loan.linkedWalletId,
+        monthlyPaymentAmount: loan.monthlyPaymentAmount,
+        paymentStartMonth: loan.paymentStartMonth,
       );
       await remoteDataSource.addLoan(model);
       return const Right(null);

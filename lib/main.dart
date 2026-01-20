@@ -6,24 +6,18 @@ import 'config/theme/app_theme.dart';
 import 'core/languages/app_localizations.dart';
 import 'core/providers/language_provider.dart';
 import 'core/providers/theme_provider.dart';
-import 'injection_container.dart' as di;
+import 'features/auth/presentation/pages/login_page.dart';
 import 'main_wrapper.dart';
 import 'firebase_options.dart';
+import 'injection_container.dart' as di;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
-  // Auto sign-in anonymously for demo/testing
-  final auth = FirebaseAuth.instance;
-  if (auth.currentUser == null) {
-    await auth.signInAnonymously();
-    debugPrint('Signed in anonymously as: ${auth.currentUser?.uid}');
-  }
-  
+
   await di.init();
 
   runApp(const FinlistyApp());
@@ -36,11 +30,11 @@ class FinlistyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
       ],
-      child: Consumer2<LanguageProvider, ThemeProvider>(
-        builder: (context, languageProvider, themeProvider, child) {
+      child: Consumer2<ThemeProvider, LanguageProvider>(
+        builder: (context, themeProvider, languageProvider, child) {
           return MaterialApp(
             title: 'Finlisty',
             debugShowCheckedModeBanner: false,
@@ -48,17 +42,45 @@ class FinlistyApp extends StatelessWidget {
             darkTheme: AppTheme.darkTheme,
             themeMode: themeProvider.themeMode,
             locale: Locale(languageProvider.languageCode),
-            localizationsDelegates: [
+            localizationsDelegates: const [
               AppLocalizations.delegate,
             ],
             supportedLocales: const [
               Locale('en'),
               Locale('bn'),
             ],
-            home: const MainWrapper(),
+            home: const AuthWrapper(),
           );
         },
       ),
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (snapshot.hasData) {
+          // User is signed in
+          return const MainWrapper();
+        } else {
+          // User is not signed in
+          return const LoginPage();
+        }
+      },
     );
   }
 }

@@ -9,11 +9,14 @@ class Loan extends Equatable {
   final LoanType type;
   final double principalAmount;
   final double outstandingAmount;
-  final double? interestRate;
   final DateTime startDate;
   final DateTime? dueDate;
   final LoanStatus status;
   final String? linkedWalletId;
+  
+  // Recurring payment fields (for Loan Taken only)
+  final double? monthlyPaymentAmount;
+  final DateTime? paymentStartMonth;
 
   const Loan({
     required this.id,
@@ -21,11 +24,12 @@ class Loan extends Equatable {
     required this.type,
     required this.principalAmount,
     required this.outstandingAmount,
-    this.interestRate,
     required this.startDate,
     this.dueDate,
     required this.status,
     this.linkedWalletId,
+    this.monthlyPaymentAmount,
+    this.paymentStartMonth,
   });
 
   @override
@@ -35,10 +39,11 @@ class Loan extends Equatable {
         type,
         principalAmount,
         outstandingAmount,
-        interestRate,
         startDate,
         dueDate,
         status,
         linkedWalletId,
+        monthlyPaymentAmount,
+        paymentStartMonth,
       ];
 }

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/languages/app_localizations.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../core/providers/theme_provider.dart';
+import '../../../../config/theme/app_colors.dart';
+import '../../../loan/presentation/pages/loans_page.dart';
 
 /// Settings page for app preferences
 class SettingsPage extends StatelessWidget {
@@ -38,10 +41,20 @@ class SettingsPage extends StatelessWidget {
           _buildSecurityOptions(context, appLocalizations),
           const SizedBox(height: 24),
 
+          // Loans Section
+          _buildSectionHeader(context, appLocalizations.navLoans),
+          const SizedBox(height: 12),
+          _buildLoansSection(context, appLocalizations),
+          const SizedBox(height: 24),
+
           // About Section
           _buildSectionHeader(context, appLocalizations.about),
           const SizedBox(height: 12),
           _buildAboutSection(context, appLocalizations),
+          const SizedBox(height: 24),
+
+          // Sign Out Section
+          _buildSignOutButton(context, appLocalizations),
         ],
       ),
     );
@@ -292,6 +305,50 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
+  Widget _buildLoansSection(BuildContext context, AppLocalizations appLocalizations) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant,
+        ),
+      ),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const LoansPage(),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(
+                Icons.account_balance_wallet_outlined,
+                color: Theme.of(context).colorScheme.outline,
+              ),
+              const SizedBox(width: 16),
+              Text(
+                'Manage Loans',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              const Spacer(),
+              Icon(
+                Icons.chevron_right,
+                color: Theme.of(context).colorScheme.outline,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildAboutSection(BuildContext context, AppLocalizations appLocalizations) {
     return Container(
       decoration: BoxDecoration(
@@ -341,6 +398,66 @@ class SettingsPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSignOutButton(BuildContext context, AppLocalizations appLocalizations) {
+    return Container(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () async {
+          // Show confirmation dialog
+          final confirmed = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text(appLocalizations.signOut),
+              content: const Text('Are you sure you want to sign out?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text(appLocalizations.cancel),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: Text(appLocalizations.ok),
+                ),
+              ],
+            ),
+          );
+
+          if (confirmed == true) {
+            try {
+              await FirebaseAuth.instance.signOut();
+              // Show success message
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Signed out successfully'),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+              }
+            } catch (e) {
+              // Show error message
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error signing out: $e'),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+              }
+            }
+          }
+        },
+        icon: const Icon(Icons.logout),
+        label: Text(appLocalizations.signOut),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.error,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+        ),
       ),
     );
   }
