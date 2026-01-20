@@ -60,4 +60,15 @@ class WalletRepositoryImpl implements WalletRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+
+  @override
+  Future<Either<Failure, void>> deleteWallet(String id) async {
+    try {
+      await remoteDataSource.deleteWallet(id);
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

@@ -6,4 +6,5 @@ abstract class LoanRepository {
   Future<Either<Failure, void>> addLoan(Loan loan);
   Future<Either<Failure, void>> repayLoan(String loanId, double amount, String walletId, bool isLoanGiven);
   Stream<List<Loan>> getLoansStream();
+  Future<Either<Failure, int>> getLinkedLoanCountByWalletId(String walletId);
 }

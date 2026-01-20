@@ -47,4 +47,15 @@ class LoanRepositoryImpl implements LoanRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+
+  @override
+  Future<Either<Failure, int>> getLinkedLoanCountByWalletId(String walletId) async {
+    try {
+      final count = await remoteDataSource.getLinkedLoanCountByWalletId(walletId);
+      return Right(count);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

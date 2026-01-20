@@ -85,6 +85,13 @@ class AppLocalizations {
   String get addWalletTitle => _localizedValues[locale.languageCode]!['addWalletTitle']!;
   String get editWalletTitle => _localizedValues[locale.languageCode]!['editWalletTitle']!;
   String get deleteWalletConfirm => _localizedValues[locale.languageCode]!['deleteWalletConfirm']!;
+  String get deleteWalletSuccess => _localizedValues[locale.languageCode]!['deleteWalletSuccess']!;
+  String get deleteWalletErrorBalance => _localizedValues[locale.languageCode]!['deleteWalletErrorBalance']!;
+  String get deleteWalletErrorDependents => _localizedValues[locale.languageCode]!['deleteWalletErrorDependents']!;
+  String get noWallets => _localizedValues[locale.languageCode]!['noWallets']!;
+  String get noWalletsSubtitle => _localizedValues[locale.languageCode]!['noWalletsSubtitle']!;
+  String get noTransactions => _localizedValues[locale.languageCode]!['noTransactions']!;
+  String get noTransactionsSubtitle => _localizedValues[locale.languageCode]!['noTransactionsSubtitle']!;
 
   // ========================
   // Category
@@ -229,6 +236,13 @@ class AppLocalizations {
       'addWalletTitle': 'Add Wallet',
       'editWalletTitle': 'Edit Wallet',
       'deleteWalletConfirm': 'Are you sure you want to delete this wallet?',
+      'deleteWalletSuccess': 'Wallet deleted successfully',
+      'deleteWalletErrorBalance': 'Cannot delete wallet with non-zero balance',
+      'deleteWalletErrorDependents': 'Cannot delete wallet with linked transactions or active loans',
+      'noWallets': 'No wallets found',
+      'noWalletsSubtitle': 'Add your first Cash, bKash, or Bank wallet',
+      'noTransactions': 'No transactions yet',
+      'noTransactionsSubtitle': 'Add your first income or expense to get started',
 
       // Category
       'categoryFood': 'Food',
@@ -357,6 +371,13 @@ class AppLocalizations {
       'addWalletTitle': 'ওয়ালেট যোগ করুন',
       'editWalletTitle': 'ওয়ালেট সম্পাদনা করুন',
       'deleteWalletConfirm': 'আপনি কি নিশ্চিত যে আপনি এই ওয়ালেটটি মুছে ফেলতে চান?',
+      'deleteWalletSuccess': 'ওয়ালেট সফলভাবে মুছে ফেলা হয়েছে',
+      'deleteWalletErrorBalance': 'ব্যালেন্স সহ ওয়ালেট মুছে ফেলা যাবে না',
+      'deleteWalletErrorDependents': 'লেনদেন বা সক্রিয় ঋণের সাথে যুক্ত ওয়ালেট মুছে ফেলা যাবে না',
+      'noWallets': 'কোন ওয়ালেট পাওয়া যায়নি',
+      'noWalletsSubtitle': 'আপনার প্রথম নগদ, বিকাশ বা ব্যাংক ওয়ালেট যোগ করুন',
+      'noTransactions': 'এখনও কোন লেনদেন নেই',
+      'noTransactionsSubtitle': 'শুরু করতে আপনার প্রথম আয় বা ব্যয় যোগ করুন',
 
       // Category
       'categoryFood': 'খাবার',

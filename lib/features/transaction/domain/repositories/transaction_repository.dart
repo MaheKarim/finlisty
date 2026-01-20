@@ -5,4 +5,5 @@ import '../entities/transaction_entity.dart';
 abstract class TransactionRepository {
   Future<Either<Failure, void>> addTransaction(TransactionEntity transaction);
   Stream<List<TransactionEntity>> getTransactionsStream();
+  Future<Either<Failure, int>> getTransactionCountByWalletId(String walletId);
 }

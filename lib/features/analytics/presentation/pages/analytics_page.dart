@@ -33,6 +33,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   }
 
   Future<void> _loadExpenseData() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
     
     try {
@@ -72,6 +73,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         ..sort((a, b) => b.value.compareTo(a.value));
       final topCategories = sortedCategories.take(3).toList();
       
+      if (!mounted) return;
       setState(() {
         _dailyExpenses = dailyExpenses;
         _categoryExpenses = categoryExpenses;
@@ -80,6 +82,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }

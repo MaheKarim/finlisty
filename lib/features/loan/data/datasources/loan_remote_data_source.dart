@@ -9,6 +9,7 @@ abstract class LoanRemoteDataSource {
   Stream<List<LoanModel>> getLoansStream();
   Future<void> updateLoanStatus(String loanId, String status);
   Future<void> repayLoan(String loanId, double amount, String walletId, bool isLoanGiven);
+  Future<int> getLinkedLoanCountByWalletId(String walletId);
 }
 
 class LoanRemoteDataSourceImpl implements LoanRemoteDataSource {
@@ -100,5 +101,17 @@ class LoanRemoteDataSourceImpl implements LoanRemoteDataSource {
         'type': 'repayment',
       });
     });
+  }
+
+
+  @override
+  Future<int> getLinkedLoanCountByWalletId(String walletId) async {
+    final snapshot = await _userDoc
+        .collection(FirebaseConstants.loans)
+        .where('linkedWalletId', isEqualTo: walletId)
+        .where('status', isEqualTo: 'active') // Only count active loans
+        .count()
+        .get();
+    return snapshot.count ?? 0;
   }
 }

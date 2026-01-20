@@ -35,4 +35,14 @@ class TransactionRepositoryImpl implements TransactionRepository {
   Stream<List<TransactionEntity>> getTransactionsStream() {
     return remoteDataSource.getTransactionsStream();
   }
+
+  @override
+  Future<Either<Failure, int>> getTransactionCountByWalletId(String walletId) async {
+    try {
+      final count = await remoteDataSource.getTransactionCountByWalletId(walletId);
+      return Right(count);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

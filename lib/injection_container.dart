@@ -22,7 +22,12 @@ import 'features/category/domain/repositories/category_repository.dart';
 import 'features/recurring_bill/data/datasources/recurring_bill_remote_data_source.dart';
 import 'features/recurring_bill/data/repositories/recurring_bill_repository_impl.dart';
 import 'features/recurring_bill/domain/repositories/recurring_bill_repository.dart';
+import 'features/recurring_bill/domain/repositories/recurring_bill_repository.dart';
 import 'features/auth/data/services/auth_service.dart';
+
+import 'features/wallet/domain/usecases/delete_wallet.dart';
+import 'features/transaction/domain/usecases/get_transaction_count_by_wallet_id.dart';
+import 'features/loan/domain/usecases/get_linked_loan_count_by_wallet_id.dart';
 
 final sl = GetIt.instance;
 
@@ -73,4 +78,9 @@ Future<void> init() async {
   sl.registerLazySingleton<RecurringBillRepository>(
     () => RecurringBillRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
   );
+
+  // Use Cases
+  sl.registerLazySingleton(() => DeleteWallet(sl()));
+  sl.registerLazySingleton(() => GetTransactionCountByWalletId(sl()));
+  sl.registerLazySingleton(() => GetLinkedLoanCountByWalletId(sl()));
 }

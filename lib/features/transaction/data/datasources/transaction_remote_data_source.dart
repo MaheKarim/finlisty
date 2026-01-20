@@ -8,6 +8,7 @@ abstract class TransactionRemoteDataSource {
   Future<void> addTransaction(TransactionModel transaction);
   Future<List<TransactionModel>> getTransactions();
   Stream<List<TransactionModel>> getTransactionsStream();
+  Future<int> getTransactionCountByWalletId(String walletId);
 }
 
 class TransactionRemoteDataSourceImpl implements TransactionRemoteDataSource {
@@ -96,5 +97,15 @@ class TransactionRemoteDataSourceImpl implements TransactionRemoteDataSource {
         .get();
         
     return snapshot.docs.map((doc) => TransactionModel.fromSnapshot(doc)).toList();
+  }
+
+  @override
+  Future<int> getTransactionCountByWalletId(String walletId) async {
+    final snapshot = await _userDoc
+        .collection(FirebaseConstants.transactions)
+        .where('walletId', isEqualTo: walletId)
+        .count()
+        .get();
+    return snapshot.count ?? 0;
   }
 }

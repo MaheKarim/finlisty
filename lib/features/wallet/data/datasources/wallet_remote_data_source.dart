@@ -8,6 +8,7 @@ abstract class WalletRemoteDataSource {
   Stream<List<WalletModel>> getWalletsStream();
   Future<void> addWallet(WalletModel wallet);
   Future<void> updateWallet(WalletModel wallet);
+  Future<void> deleteWallet(String id);
 }
 
 class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
@@ -60,5 +61,10 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
         .collection(FirebaseConstants.wallets)
         .doc(wallet.id)
         .update(wallet.toJson());
+  }
+
+  @override
+  Future<void> deleteWallet(String id) async {
+    await _userDoc.collection(FirebaseConstants.wallets).doc(id).delete();
   }
 }

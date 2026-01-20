@@ -7,38 +7,43 @@ import 'core/providers/theme_provider.dart';
 import 'features/dashboard/presentation/pages/dashboard_page.dart';
 import 'features/transaction/presentation/pages/transactions_page.dart';
 import 'features/analytics/presentation/pages/analytics_page.dart';
+import 'features/wallet/presentation/pages/wallets_page.dart';
 import 'features/settings/presentation/pages/settings_page.dart';
+import 'core/providers/navigation_provider.dart';
+import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import 'injection_container.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Main app wrapper with providers and bottom navigation
-class MainWrapper extends StatefulWidget {
+class MainWrapper extends StatelessWidget {
   const MainWrapper({super.key});
 
   @override
-  State<MainWrapper> createState() => _MainWrapperState();
-}
-
-class _MainWrapperState extends State<MainWrapper> {
-  int _selectedIndex = 0;
-
-  final List<Widget> _pages = [
-    const DashboardPage(),
-    const TransactionsPage(),
-    const AnalyticsPage(),
-    const SettingsPage(),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages,
+    final navigationProvider = Provider.of<NavigationProvider>(context);
+    final selectedIndex = navigationProvider.currentIndex;
+
+    final List<Widget> pages = [
+      const DashboardPage(),
+      const TransactionsPage(),
+      const AnalyticsPage(),
+      const WalletsPage(),
+      const SettingsPage(),
+    ];
+
+    return BlocProvider(
+      create: (_) => DashboardBloc(
+        walletRepository: sl(),
+        transactionRepository: sl(),
+        loanRepository: sl(),
+        deleteWallet: sl(),
+        getTransactionCount: sl(),
+        getLinkedLoanCount: sl(),
+      )..add(SubscribeDashboardData()),
+      child: Scaffold(
+        body: IndexedStack(
+        index: selectedIndex,
+        children: pages,
       ),
       bottomNavigationBar: Consumer2<LanguageProvider, ThemeProvider>(
         builder: (context, languageProvider, themeProvider, child) {
@@ -46,14 +51,14 @@ class _MainWrapperState extends State<MainWrapper> {
           final appLocalizations = AppLocalizations(locale);
 
           return BottomNavigationBar(
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
+            currentIndex: selectedIndex,
+            onTap: (index) => navigationProvider.setIndex(index),
             type: BottomNavigationBarType.fixed,
             selectedFontSize: 12,
             unselectedFontSize: 12,
             selectedItemColor: AppColors.primaryBlue,
             unselectedItemColor: AppColors.textSecondary,
-            items: [
+             items: [
               BottomNavigationBarItem(
                 icon: const Icon(Icons.home_outlined),
                 activeIcon: const Icon(Icons.home),
@@ -70,6 +75,11 @@ class _MainWrapperState extends State<MainWrapper> {
                 label: appLocalizations.navAnalytics,
               ),
               BottomNavigationBarItem(
+                icon: const Icon(Icons.account_balance_wallet_outlined),
+                activeIcon: const Icon(Icons.account_balance_wallet),
+                label: appLocalizations.wallets, 
+              ),
+              BottomNavigationBarItem(
                 icon: const Icon(Icons.person_outline),
                 activeIcon: const Icon(Icons.person),
                 label: appLocalizations.navSettings,
@@ -77,6 +87,7 @@ class _MainWrapperState extends State<MainWrapper> {
             ],
           );
         },
+      ),
       ),
     );
   }

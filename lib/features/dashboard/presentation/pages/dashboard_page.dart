@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/languages/app_localizations.dart';
 import '../../../../core/providers/language_provider.dart';
+import '../../../../core/providers/navigation_provider.dart';
 import '../../../../config/theme/app_colors.dart';
 import '../../../../config/theme/app_theme.dart';
 import '../../../../injection_container.dart';
@@ -10,21 +11,13 @@ import '../../../wallet/domain/entities/wallet.dart';
 import '../../../transaction/domain/entities/transaction_entity.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../../../transaction/presentation/pages/add_transaction_page.dart';
-import '../../../wallet/presentation/pages/wallets_page.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => DashboardBloc(
-        walletRepository: sl(),
-        transactionRepository: sl(),
-        loanRepository: sl(),
-      )..add(SubscribeDashboardData()),
-      child: const DashboardView(),
-    );
+    return const DashboardView();
   }
 }
 
@@ -99,10 +92,8 @@ class DashboardView extends StatelessWidget {
 
                     // Wallets Section
                     _buildSectionHeader(context, appLocalizations.wallets, () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const WalletsPage()),
-                      );
+                      // Switch to Wallets tab (index 3)
+                      Provider.of<NavigationProvider>(context, listen: false).setIndex(3);
                     }),
                     const SizedBox(height: 12),
                     SizedBox(
@@ -378,10 +369,8 @@ class DashboardView extends StatelessWidget {
   ) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const WalletsPage()),
-        );
+        // Switch to Wallets tab (index 3)
+        Provider.of<NavigationProvider>(context, listen: false).setIndex(3);
       },
       child: Container(
         width: 140,
