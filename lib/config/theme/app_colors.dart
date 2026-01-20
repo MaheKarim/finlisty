@@ -48,6 +48,17 @@ class AppColors {
   static const Color infoLight = Color(0xFFDBEAFE); // Blue 100
 
   // ========================
+  // Transaction Type Colors
+  // ========================
+  static const Color income = Color(0xFF22C55E); // Green 500
+  static const Color expense = Color(0xFFEF4444); // Red 500
+
+  // ========================
+  // Currency Symbol
+  // ========================
+  static const String currencySymbol = '৳'; // Bangladeshi Taka
+
+  // ========================
   // Text Colors (Light Mode)
   // ========================
   static const Color textPrimaryLight = Color(0xFF0F172A); // Slate 900

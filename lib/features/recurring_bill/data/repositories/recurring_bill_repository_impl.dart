@@ -23,10 +23,10 @@ class RecurringBillRepositoryImpl implements RecurringBillRepository {
         final bills = await remoteDataSource.getRecurringBills();
         return Right(bills.map((b) => b.toEntity()).toList());
       } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
+        return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return Left(NetworkFailure('No internet connection'));
     }
   }
 
@@ -36,14 +36,14 @@ class RecurringBillRepositoryImpl implements RecurringBillRepository {
       try {
         final bill = await remoteDataSource.getRecurringBillById(id);
         if (bill == null) {
-          return Left(NotFoundFailure(message: 'Recurring bill not found'));
+          return Left(NotFoundFailure('Recurring bill not found'));
         }
         return Right(bill.toEntity());
       } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
+        return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return Left(NetworkFailure('No internet connection'));
     }
   }
 
@@ -55,10 +55,10 @@ class RecurringBillRepositoryImpl implements RecurringBillRepository {
         await remoteDataSource.addRecurringBill(billModel);
         return const Right(null);
       } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
+        return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return Left(NetworkFailure('No internet connection'));
     }
   }
 
@@ -70,10 +70,10 @@ class RecurringBillRepositoryImpl implements RecurringBillRepository {
         await remoteDataSource.updateRecurringBill(billModel);
         return const Right(null);
       } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
+        return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return Left(NetworkFailure('No internet connection'));
     }
   }
 
@@ -84,10 +84,10 @@ class RecurringBillRepositoryImpl implements RecurringBillRepository {
         await remoteDataSource.deleteRecurringBill(id);
         return const Right(null);
       } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
+        return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return Left(NetworkFailure('No internet connection'));
     }
   }
 
@@ -98,10 +98,10 @@ class RecurringBillRepositoryImpl implements RecurringBillRepository {
         await remoteDataSource.markAsPaid(billId, paidDate);
         return const Right(null);
       } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
+        return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return Left(NetworkFailure('No internet connection'));
     }
   }
 
@@ -112,10 +112,10 @@ class RecurringBillRepositoryImpl implements RecurringBillRepository {
         final bills = await remoteDataSource.getBillsDueWithinDays(days);
         return Right(bills.map((b) => b.toEntity()).toList());
       } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
+        return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return Left(NetworkFailure('No internet connection'));
     }
   }
 
@@ -126,10 +126,10 @@ class RecurringBillRepositoryImpl implements RecurringBillRepository {
         final bills = await remoteDataSource.getOverdueBills();
         return Right(bills.map((b) => b.toEntity()).toList());
       } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
+        return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return Left(NetworkFailure('No internet connection'));
     }
   }
 

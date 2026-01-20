@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../injection_container.dart';
+import 'package:provider/provider.dart';
+import '../../../../core/languages/app_localizations.dart';
+import '../../../../core/providers/language_provider.dart';
 import '../../../../config/theme/app_colors.dart';
+import '../../../../injection_container.dart';
 import '../../../wallet/domain/entities/wallet.dart';
 import '../../../transaction/domain/entities/transaction_entity.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../../../transaction/presentation/pages/add_transaction_page.dart';
+import '../../../wallet/presentation/pages/wallets_page.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -27,11 +31,19 @@ class DashboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Locale(context.read<LanguageProvider>().languageCode);
+    final appLocalizations = AppLocalizations(locale);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Finlisty"),
+        title: Text(appLocalizations.dashboardTitle),
         actions: [
-          IconButton(icon: const Icon(Icons.notifications_outlined), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {
+              // TODO: Implement notifications
+            },
+          ),
         ],
       ),
       body: BlocBuilder<DashboardBloc, DashboardState>(
@@ -44,7 +56,7 @@ class DashboardView extends StatelessWidget {
           }
           if (state is DashboardLoaded) {
             return RefreshIndicator(
-              onRefresh: () async {}, // Stream handles updates, but this is good UX
+              onRefresh: () async {},
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(16),
@@ -52,21 +64,44 @@ class DashboardView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Total Balance Card
-                    _buildBalanceCard(state.totalBalance),
+                    _buildBalanceCard(context, state.totalBalance, appLocalizations),
                     const SizedBox(height: 20),
-                    
+
                     // Income/Expense Row
                     Row(
                       children: [
-                        Expanded(child: _buildSummaryCard("Income", state.totalIncome, AppColors.income, Icons.arrow_downward)),
+                        Expanded(
+                          child: _buildSummaryCard(
+                            context,
+                            appLocalizations.totalIncome,
+                            state.totalIncome,
+                            AppColors.income,
+                            Icons.arrow_downward,
+                            appLocalizations,
+                          ),
+                        ),
                         const SizedBox(width: 16),
-                        Expanded(child: _buildSummaryCard("Expense", state.totalExpense, AppColors.expense, Icons.arrow_upward)),
+                        Expanded(
+                          child: _buildSummaryCard(
+                            context,
+                            appLocalizations.totalExpense,
+                            state.totalExpense,
+                            AppColors.expense,
+                            Icons.arrow_upward,
+                            appLocalizations,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 24),
-                    
+
                     // Wallets Section
-                    const Text("Wallets", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    _buildSectionHeader(context, appLocalizations.wallets, () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const WalletsPage()),
+                      );
+                    }),
                     const SizedBox(height: 12),
                     SizedBox(
                       height: 120,
@@ -75,19 +110,25 @@ class DashboardView extends StatelessWidget {
                         itemCount: state.wallets.length + 1,
                         itemBuilder: (context, index) {
                           if (index == state.wallets.length) {
-                             return _buildAddWalletCard();
+                            return _buildAddWalletCard(context, appLocalizations);
                           }
-                          return _buildWalletCard(state.wallets[index]);
+                          return _buildWalletCard(context, state.wallets[index]);
                         },
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Recent Transactions
-                    const Text("Recent Transactions", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    _buildSectionHeader(
+                      context,
+                      appLocalizations.recentTransactions,
+                      () {
+                        // TODO: Navigate to transactions page
+                      },
+                    ),
                     const SizedBox(height: 12),
-                    ...state.recentTransactions.map((t) => _buildTransactionItem(t)),
+                    ...state.recentTransactions.map((t) => _buildTransactionItem(context, t)),
                   ],
                 ),
               ),
@@ -98,47 +139,75 @@ class DashboardView extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const AddTransactionPage()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddTransactionPage()),
+          );
         },
-        label: const Text("Add New"),
+        label: Text(appLocalizations.addTransaction),
         icon: const Icon(Icons.add),
         backgroundColor: AppColors.primary,
       ),
     );
   }
 
-  Widget _buildBalanceCard(double balance) {
+  Widget _buildBalanceCard(
+    BuildContext context,
+    double balance,
+    AppLocalizations appLocalizations,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.secondary,
+        gradient: AppColors.primaryGradient,
         borderRadius: BorderRadius.circular(24),
-         boxShadow: [
-          BoxShadow(color: AppColors.secondary.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 5)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Total Balance", style: TextStyle(color: Colors.white70, fontSize: 14)),
+          Text(
+            appLocalizations.totalBalance,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Colors.white70,
+            ),
+          ),
           const SizedBox(height: 8),
           Text(
-            "৳${balance.toStringAsFixed(2)}",
-            style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+            '${appLocalizations.currencySymbol}${balance.toStringAsFixed(2)}',
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryCard(String title, double amount, Color color, IconData icon) {
+  Widget _buildSummaryCard(
+    BuildContext context,
+    String title,
+    double amount,
+    Color color,
+    IconData icon,
+    AppLocalizations appLocalizations,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade100),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,51 +215,109 @@ class DashboardView extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
-                child: Icon(icon, size: 16, color: color),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 20, color: color),
               ),
-              const SizedBox(width: 8),
-              Text(title, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
-          Text("৳${amount.toStringAsFixed(0)}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+          Text(
+            '${appLocalizations.currencySymbol}${amount.toStringAsFixed(0)}',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildWalletCard(Wallet wallet) {
+  Widget _buildSectionHeader(
+    BuildContext context,
+    String title,
+    VoidCallback? onTap,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        if (onTap != null)
+          GestureDetector(
+            onTap: onTap,
+            child: Text(
+              'See All',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildWalletCard(BuildContext context, Wallet wallet) {
     return Container(
       width: 140,
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade100),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-               Icon(
-                 wallet.type == WalletType.cash ? Icons.money : 
-                 wallet.type == WalletType.bank ? Icons.account_balance : Icons.phone_android,
-                 color: AppColors.primary,
-               ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.getWalletLightColor(wallet.type.name),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              _getWalletIcon(wallet.type),
+              color: AppColors.getWalletColor(wallet.type.name),
+              size: 20,
+            ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(wallet.name, style: TextStyle(color: Colors.grey.shade600, fontSize: 12), overflow: TextOverflow.ellipsis),
+              Text(
+                wallet.name,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
               const SizedBox(height: 4),
-              Text("৳${wallet.balance.toStringAsFixed(0)}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                '${AppColors.currencySymbol}${wallet.balance.toStringAsFixed(0)}',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           )
         ],
@@ -198,75 +325,137 @@ class DashboardView extends StatelessWidget {
     );
   }
 
-   Widget _buildAddWalletCard() {
-    return Container(
-      width: 60,
-      margin: const EdgeInsets.only(right: 12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: const Center(
-        child: Icon(Icons.add, color: Colors.grey),
+  Widget _buildAddWalletCard(
+    BuildContext context,
+    AppLocalizations appLocalizations,
+  ) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const WalletsPage()),
+        );
+      },
+      child: Container(
+        width: 140,
+        margin: const EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant,
+            style: BorderStyle.solid,
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.add,
+                color: Theme.of(context).colorScheme.outline,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                appLocalizations.addWallet,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildTransactionItem(TransactionEntity t) {
+  Widget _buildTransactionItem(BuildContext context, TransactionEntity t) {
     final isIncome = t.type == TransactionType.income;
     final isTransfer = t.type == TransactionType.transfer;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade50),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant,
+        ),
       ),
       child: Row(
         children: [
-           Container(
-             padding: const EdgeInsets.all(10),
-             decoration: BoxDecoration(
-               color: isIncome ? AppColors.income.withValues(alpha: 0.1) : 
-                      isTransfer ? Colors.blue.withValues(alpha: 0.1) : AppColors.expense.withValues(alpha: 0.1),
-               shape: BoxShape.circle,
-             ),
-             child: Icon(
-               isIncome ? Icons.arrow_downward : 
-               isTransfer ? Icons.swap_horiz : Icons.arrow_upward,
-               color: isIncome ? AppColors.income : 
-                      isTransfer ? Colors.blue : AppColors.expense,
-               size: 20,
-             ),
-           ),
-           const SizedBox(width: 16),
-           Expanded(
-             child: Column(
-               crossAxisAlignment: CrossAxisAlignment.start,
-               children: [
-                 Text(
-                   isTransfer ? "Transfer" : (t.categoryName ?? (isIncome ? "Income" : "Expense")),
-                   style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                 ),
-                 Text(
-                   t.date.toString().split(' ')[0],
-                   style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
-                 ),
-               ],
-             ),
-           ),
-           Text(
-             "${isIncome ? '+' : '-'}৳${t.amount.toStringAsFixed(0)}",
-             style: TextStyle(
-               color: isIncome ? AppColors.income : AppColors.textPrimaryLight,
-               fontWeight: FontWeight.bold,
-               fontSize: 16,
-             ),
-           ),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isIncome
+                  ? AppColors.income.withOpacity(0.1)
+                  : isTransfer
+                      ? Colors.blue.withOpacity(0.1)
+                      : AppColors.expense.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              isIncome
+                  ? Icons.arrow_downward
+                  : isTransfer
+                      ? Icons.swap_horiz
+                      : Icons.arrow_upward,
+              color: isIncome
+                  ? AppColors.income
+                  : isTransfer
+                      ? Colors.blue
+                      : AppColors.expense,
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isTransfer
+                      ? 'Transfer'
+                      : (t.categoryName ?? (isIncome ? 'Income' : 'Expense')),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  t.date.toString().split(' ')[0],
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '${isIncome ? '+' : '-'}${AppColors.currencySymbol}${t.amount.toStringAsFixed(0)}',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: isIncome
+                  ? AppColors.income
+                  : Theme.of(context).colorScheme.onSurface,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  IconData _getWalletIcon(WalletType type) {
+    switch (type) {
+      case WalletType.cash:
+        return Icons.money;
+      case WalletType.bkash:
+      case WalletType.nagad:
+        return Icons.phone_android;
+      case WalletType.bank:
+        return Icons.account_balance;
+      case WalletType.other:
+        return Icons.wallet;
+    }
   }
 }

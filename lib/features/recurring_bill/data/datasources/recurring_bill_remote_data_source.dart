@@ -84,13 +84,13 @@ class RecurringBillRemoteDataSourceImpl implements RecurringBillRemoteDataSource
 
   @override
   Future<void> markAsPaid(String billId, DateTime paidDate) async {
-    final doc = await _billsCollection.doc(id).get();
+    final doc = await _billsCollection.doc(billId).get();
     if (!doc.exists) return;
 
     final bill = RecurringBillModel.fromJson(doc.data() as Map<String, dynamic>);
     final nextDueDate = bill.calculateNextDueDate();
 
-    await _billsCollection.doc(id).update({
+    await _billsCollection.doc(billId).update({
       'lastPaidDate': paidDate.toIso8601String(),
       'nextDueDate': nextDueDate.toIso8601String(),
     });

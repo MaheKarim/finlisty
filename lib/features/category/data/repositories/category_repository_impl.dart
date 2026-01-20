@@ -23,10 +23,10 @@ class CategoryRepositoryImpl implements CategoryRepository {
         final categories = await remoteDataSource.getCategories();
         return Right(categories.map((c) => c.toEntity()).toList());
       } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
+        return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return Left(NetworkFailure('No internet connection'));
     }
   }
 
@@ -36,14 +36,14 @@ class CategoryRepositoryImpl implements CategoryRepository {
       try {
         final category = await remoteDataSource.getCategoryById(id);
         if (category == null) {
-          return Left(NotFoundFailure(message: 'Category not found'));
+          return Left(NotFoundFailure('Category not found'));
         }
         return Right(category.toEntity());
       } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
+        return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return Left(NetworkFailure('No internet connection'));
     }
   }
 
@@ -55,10 +55,10 @@ class CategoryRepositoryImpl implements CategoryRepository {
         await remoteDataSource.addCategory(categoryModel);
         return const Right(null);
       } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
+        return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return Left(NetworkFailure('No internet connection'));
     }
   }
 
@@ -70,10 +70,10 @@ class CategoryRepositoryImpl implements CategoryRepository {
         await remoteDataSource.updateCategory(categoryModel);
         return const Right(null);
       } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
+        return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return Left(NetworkFailure('No internet connection'));
     }
   }
 
@@ -84,10 +84,10 @@ class CategoryRepositoryImpl implements CategoryRepository {
         await remoteDataSource.deleteCategory(id);
         return const Right(null);
       } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
+        return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return Left(NetworkFailure('No internet connection'));
     }
   }
 
@@ -98,10 +98,10 @@ class CategoryRepositoryImpl implements CategoryRepository {
         await remoteDataSource.initializeDefaultCategories();
         return const Right(null);
       } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
+        return Left(ServerFailure(e.toString()));
       }
     } else {
-      return Left(NetworkFailure(message: 'No internet connection'));
+      return Left(NetworkFailure('No internet connection'));
     }
   }
 

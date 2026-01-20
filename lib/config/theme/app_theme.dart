@@ -252,7 +252,7 @@ class AppTheme {
       // ========================
       // Dialog Theme
       // ========================
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: AppColors.surfaceLight,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusXl),
@@ -531,7 +531,7 @@ class AppTheme {
       // ========================
       // Dialog Theme
       // ========================
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: AppColors.surfaceDark,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusXl),
